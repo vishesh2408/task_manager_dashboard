@@ -39,25 +39,31 @@ export default function Dashboard() {
             Welcome, <span style={{ opacity: 0.9 }}>{user?.name}</span>
           </h1>
           <p className="muted" style={{ marginTop: 8 }}>Track your projects and tasks at a glance</p>
-        </div>
 
-        {/* Quick Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 18 }}>
-          <div className="card cardPad" style={{ textAlign: 'center' }}>
-            <div className="muted" style={{ fontSize: 13, fontWeight: 650, marginBottom: 8 }}>Total Projects</div>
-            <div style={{ fontSize: 28, fontWeight: 950, color: '#3b82f6' }}>{projects.length}</div>
-          </div>
-          <div className="card cardPad" style={{ textAlign: 'center' }}>
-            <div className="muted" style={{ fontSize: 13, fontWeight: 650, marginBottom: 8 }}>Total Tasks</div>
-            <div style={{ fontSize: 28, fontWeight: 950, color: '#10b981' }}>{tasks.length}</div>
-          </div>
-          <div className="card cardPad" style={{ textAlign: 'center' }}>
-            <div className="muted" style={{ fontSize: 13, fontWeight: 650, marginBottom: 8 }}>Active Tasks</div>
-            <div style={{ fontSize: 28, fontWeight: 950, color: '#f59e0b' }}>{activeTasks.length}</div>
-          </div>
-          <div className="card cardPad" style={{ textAlign: 'center' }}>
-            <div className="muted" style={{ fontSize: 13, fontWeight: 650, marginBottom: 8 }}>Completed</div>
-            <div style={{ fontSize: 28, fontWeight: 950, color: '#8b5cf6' }}>{completedTasks.length}</div>
+          {/* Overview Stats Inline */}
+          <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid #e5e7eb' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 16 }}>
+              <div style={{ textAlign: 'center' }}>
+                <div className="muted" style={{ fontSize: 11, fontWeight: 600, marginBottom: 2 }}>Projects</div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: '#3b82f6' }}>{projects.length}</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div className="muted" style={{ fontSize: 11, fontWeight: 600, marginBottom: 2 }}>Tasks</div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: '#10b981' }}>{tasks.length}</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div className="muted" style={{ fontSize: 11, fontWeight: 600, marginBottom: 2 }}>Active</div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: '#f59e0b' }}>{activeTasks.length}</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div className="muted" style={{ fontSize: 11, fontWeight: 600, marginBottom: 2 }}>Done</div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: '#8b5cf6' }}>{completedTasks.length}</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div className="muted" style={{ fontSize: 11, fontWeight: 600, marginBottom: 2 }}>Overdue</div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: '#ef4444' }}>{overdueTasks.length}</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -75,28 +81,6 @@ export default function Dashboard() {
             ))}
           </select>
         </div>
-
-        {/* Stats Grid */}
-        {effectiveSelectedProject && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 18 }}>
-            <div className="card cardPad">
-              <div className="muted" style={{ fontSize: 13, fontWeight: 650 }}>Total tasks</div>
-              <div style={{ fontSize: 34, fontWeight: 950, marginTop: 6 }}>{tasks.length}</div>
-            </div>
-            <div className="card cardPad">
-              <div className="muted" style={{ fontSize: 13, fontWeight: 650 }}>Active</div>
-              <div style={{ fontSize: 34, fontWeight: 950, marginTop: 6 }}>{activeTasks.length}</div>
-            </div>
-            <div className="card cardPad">
-              <div className="muted" style={{ fontSize: 13, fontWeight: 650 }}>Completed</div>
-              <div style={{ fontSize: 34, fontWeight: 950, marginTop: 6 }}>{completedTasks.length}</div>
-            </div>
-            <div className="card cardPad">
-              <div className="muted" style={{ fontSize: 13, fontWeight: 650 }}>Overdue</div>
-              <div style={{ fontSize: 34, fontWeight: 950, marginTop: 6 }}>{overdueTasks.length}</div>
-            </div>
-          </div>
-        )}
 
         {/* Main Content */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16, alignItems: 'start' }}>

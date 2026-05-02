@@ -1,5 +1,6 @@
 import Task from '../models/Task.js';
 import Project from '../models/Project.js';
+import User from '../models/User.js';
 import { ApiResponse, ApiError, asyncHandler } from '../utils/apiResponse.js';
 
 export const createTask = asyncHandler(async (req, res, next) => {
@@ -16,12 +17,22 @@ export const createTask = asyncHandler(async (req, res, next) => {
     throw new ApiError(404, 'Project not found');
   }
 
+  // If assignee is provided, find user by email
+  let assigneeId = null;
+  if (assignee) {
+    const assigneeUser = await User.findOne({ email: assignee });
+    if (!assigneeUser) {
+      throw new ApiError(404, 'Assignee user not found');
+    }
+    assigneeId = assigneeUser._id;
+  }
+
   const task = new Task({
     title,
     description,
     project: projectId,
     createdBy: req.user._id,
-    assignee: assignee || null,
+    assignee: assigneeId,
     priority,
     dueDate,
     estimatedHours,
@@ -105,7 +116,17 @@ export const updateTask = asyncHandler(async (req, res, next) => {
 
   if (title) task.title = title;
   if (description !== undefined) task.description = description;
-  if (assignee !== undefined) task.assignee = assignee;
+  if (assignee !== undefined) {
+    if (assignee) {
+      const assigneeUser = await User.findOne({ email: assignee });
+      if (!assigneeUser) {
+        throw new ApiError(404, 'Assignee user not found');
+      }
+      task.assignee = assigneeUser._id;
+    } else {
+      task.assignee = null;
+    }
+  }
   if (status) task.status = status;
   if (priority) task.priority = priority;
   if (dueDate !== undefined) task.dueDate = dueDate;
