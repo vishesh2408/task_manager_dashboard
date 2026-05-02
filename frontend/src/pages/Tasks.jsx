@@ -6,7 +6,6 @@ import { ProjectContext } from '../context/ProjectContext';
 const styles = {
   container: {
     minHeight: '100vh',
-    background: 'linear-gradient(to bottom right, #f8fafc, #e2e8f0)',
     padding: '1.5rem',
     fontFamily: "'Inter', sans-serif",
   },
@@ -21,7 +20,7 @@ const styles = {
     marginBottom: '2rem',
   },
   backButton: {
-    color: '#7c3aed',
+    color: 'var(--primary-1)',
     marginBottom: '1rem',
     fontWeight: '500',
     background: 'none',
@@ -31,32 +30,32 @@ const styles = {
   headerTitle: {
     fontSize: '2.25rem',
     fontWeight: 'bold',
-    color: '#1e293b',
+    color: 'var(--text)',
   },
   headerSubtitle: {
-    color: '#475569',
+    color: 'var(--muted)',
     marginTop: '0.5rem',
   },
   newTaskButton: {
     padding: '0.75rem 1.5rem',
-    background: 'linear-gradient(to right, #8b5cf6, #06b6d4)',
-    color: 'white',
+    background: 'var(--primary-1)',
+    color: 'var(--primary-text)',
     fontWeight: '500',
     borderRadius: '0.5rem',
     border: 'none',
     cursor: 'pointer',
   },
   formContainer: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--surface)',
     borderRadius: '0.5rem',
-    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+    boxShadow: 'var(--shadow-md)',
     padding: '1.5rem',
     marginBottom: '2rem',
   },
   formTitle: {
     fontSize: '1.5rem',
     fontWeight: 'bold',
-    color: '#1e293b',
+    color: 'var(--text)',
     marginBottom: '1.5rem',
   },
   form: {
@@ -77,34 +76,40 @@ const styles = {
     display: 'block',
     fontSize: '0.875rem',
     fontWeight: '500',
-    color: '#334155',
+    color: 'var(--muted)',
     marginBottom: '0.25rem',
   },
   input: {
     width: '100%',
     padding: '0.5rem 1rem',
-    border: '1px solid #cbd5e1',
+    border: '1px solid var(--border)',
     borderRadius: '0.5rem',
     outline: 'none',
     boxSizing: 'border-box',
+    backgroundColor: 'var(--bg-elev)',
+    color: 'var(--text)',
   },
   select: {
     width: '100%',
     padding: '0.5rem 1rem',
-    border: '1px solid #cbd5e1',
+    border: '1px solid var(--border)',
     borderRadius: '0.5rem',
     outline: 'none',
     boxSizing: 'border-box',
+    backgroundColor: 'var(--bg-elev)',
+    color: 'var(--text)',
   },
   textarea: {
     width: '100%',
     padding: '0.5rem 1rem',
-    border: '1px solid #cbd5e1',
+    border: '1px solid var(--border)',
     borderRadius: '0.5rem',
     outline: 'none',
     height: '6rem',
     resize: 'none',
     boxSizing: 'border-box',
+    backgroundColor: 'var(--bg-elev)',
+    color: 'var(--text)',
   },
   buttonGroup: {
     display: 'flex',
@@ -113,8 +118,8 @@ const styles = {
   },
   submitButton: {
     padding: '0.75rem 1.5rem',
-    backgroundColor: '#16a34a',
-    color: 'white',
+    backgroundColor: 'var(--success)',
+    color: 'var(--primary-text)',
     fontWeight: '500',
     borderRadius: '0.5rem',
     border: 'none',
@@ -122,8 +127,8 @@ const styles = {
   },
   deleteButton: {
     padding: '0.75rem 1.5rem',
-    backgroundColor: '#dc2626',
-    color: 'white',
+    backgroundColor: 'var(--danger)',
+    color: 'var(--primary-text)',
     fontWeight: '500',
     borderRadius: '0.5rem',
     border: 'none',
@@ -131,12 +136,12 @@ const styles = {
   },
   kanbanBoard: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+    gridTemplateColumns: 'repeat(4, 1fr)',
     gap: '1.5rem',
     alignItems: 'flex-start',
   },
   kanbanColumn: {
-    backgroundColor: '#f1f5f9',
+    backgroundColor: 'var(--surface)',
     borderRadius: '0.5rem',
     padding: '1rem',
   },
@@ -149,12 +154,12 @@ const styles = {
   kanbanColumnTitle: {
     fontSize: '1.125rem',
     fontWeight: 'bold',
-    color: '#1e293b',
+    color: 'var(--text)',
     textTransform: 'capitalize',
   },
   taskCount: {
-    backgroundColor: '#e2e8f0',
-    color: '#475569',
+    backgroundColor: 'var(--bg-elev)',
+    color: 'var(--muted)',
     borderRadius: '9999px',
     padding: '0.25rem 0.75rem',
     fontSize: '0.75rem',
@@ -167,9 +172,9 @@ const styles = {
     minHeight: '100px',
   },
   taskCard: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--card)',
     borderRadius: '0.5rem',
-    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+    boxShadow: 'var(--shadow-sm)',
     padding: '1rem',
     cursor: 'pointer',
   },
@@ -181,7 +186,7 @@ const styles = {
   },
   taskTitle: {
     fontWeight: '600',
-    color: '#1e293b',
+    color: 'var(--text)',
   },
   priorityBadge: {
     padding: '0.25rem 0.75rem',
@@ -191,13 +196,13 @@ const styles = {
     textTransform: 'capitalize',
   },
   priorityColors: {
-    low: { backgroundColor: '#dbeafe', color: '#1e40af' },
-    medium: { backgroundColor: '#fee_cd', color: '#c2410c' },
-    high: { backgroundColor: '#fecaca', color: '#b91c1c' },
+    low: { backgroundColor: 'rgba(59, 130, 246, 0.2)', color: '#bfdbfe' },
+    medium: { backgroundColor: 'rgba(245, 158, 11, 0.2)', color: '#fde68a' },
+    high: { backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#fecaca' },
   },
   taskDescription: {
     fontSize: '0.875rem',
-    color: '#475569',
+    color: 'var(--muted)',
     marginBottom: '1rem',
   },
   taskFooter: {
@@ -205,13 +210,13 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     fontSize: '0.75rem',
-    color: '#64748b',
+    color: 'var(--faint)',
   },
   dueDate: {
     fontWeight: '500',
   },
   overdue: {
-    color: '#b91c1c',
+    color: 'var(--danger)',
   },
   loading: {
     minHeight: '100vh',
@@ -220,13 +225,11 @@ const styles = {
     justifyContent: 'center',
   },
   loadingText: {
-    color: '#475569',
+    color: 'var(--muted)',
   },
   mdGrid2: {
-    '@media (min-width: 768px)': {
-      gridTemplateColumns: 'repeat(2, 1fr)',
-    },
-  }
+    gridTemplateColumns: 'repeat(2, 1fr)',
+  },
 };
 
 export default function Tasks() {
