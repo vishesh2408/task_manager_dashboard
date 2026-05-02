@@ -1,5 +1,6 @@
 import express from 'express';
 import { body, param, query } from 'express-validator';
+import validator from 'validator';
 import {
   createTask,
   getProjectTasks,
@@ -24,7 +25,10 @@ router.post(
   [
     body('title').trim().notEmpty().withMessage('Task title is required'),
     body('description').optional().isString().withMessage('Description must be a string'),
-    body('assignee').optional({ nullable: true }).isEmail().withMessage('Assignee must be a valid email address'),
+    body('assignee').optional().custom((value) => {
+      if (!value || value.trim() === '') return true; // Allow empty
+      return validator.isEmail(value);
+    }).withMessage('Assignee must be a valid email address'),
     body('priority').optional().isIn(['low', 'medium', 'high']).withMessage('Invalid priority'),
     body('dueDate').optional({ nullable: true }).isISO8601().withMessage('Due date must be a valid date'),
     body('estimatedHours').optional().isNumeric().withMessage('Estimated hours must be a number'),
@@ -40,7 +44,10 @@ router.get(
     query('status').optional().isIn(['todo', 'in-progress', 'review', 'completed']).withMessage('Invalid status'),
     query('priority').optional().isIn(['low', 'medium', 'high']).withMessage('Invalid priority'),
     query('sortBy').optional().isIn(['dueDate', 'priority', 'createdAt']).withMessage('Invalid sortBy'),
-    query('assignee').optional().isEmail().withMessage('Assignee must be a valid email address'),
+    query('assignee').optional().custom((value) => {
+      if (!value || value.trim() === '') return true; // Allow empty
+      return validator.isEmail(value);
+    }).withMessage('Assignee must be a valid email address'),
   ],
   validateRequest,
   getProjectTasks
@@ -59,7 +66,10 @@ router.put(
     param('taskId').isMongoId().withMessage('Invalid task id'),
     body('title').optional().trim().notEmpty().withMessage('Task title cannot be empty'),
     body('description').optional().isString().withMessage('Description must be a string'),
-    body('assignee').optional({ nullable: true }).isEmail().withMessage('Assignee must be a valid email address'),
+    body('assignee').optional().custom((value) => {
+      if (!value || value.trim() === '') return true; // Allow empty
+      return validator.isEmail(value);
+    }).withMessage('Assignee must be a valid email address'),
     body('status').optional().isIn(['todo', 'in-progress', 'review', 'completed']).withMessage('Invalid status'),
     body('priority').optional().isIn(['low', 'medium', 'high']).withMessage('Invalid priority'),
     body('dueDate').optional({ nullable: true }).isISO8601().withMessage('Due date must be a valid date'),
