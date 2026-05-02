@@ -44,7 +44,7 @@ export const getProjectTasks = asyncHandler(async (req, res) => {
   // Check project exists
   const project = await Project.findById(projectId);
   if (!project) {
-    throw new ApiError(404, 'Project not found'));
+    throw new ApiError(404, 'Project not found');
   }
 
   let filter = { project: projectId };
@@ -76,7 +76,7 @@ export const getTaskById = asyncHandler(async (req, res) => {
     .populate('comments.user', 'name email avatar');
 
   if (!task) {
-    throw new ApiError(404, 'Task not found'));
+    throw new ApiError(404, 'Task not found');
   }
 
   res.status(200).json(
@@ -91,7 +91,7 @@ export const updateTask = asyncHandler(async (req, res) => {
   let task = await Task.findById(taskId);
 
   if (!task) {
-    throw new ApiError(404, 'Task not found'));
+    throw new ApiError(404, 'Task not found');
   }
 
   if (title) task.title = title;
@@ -119,7 +119,7 @@ export const deleteTask = asyncHandler(async (req, res) => {
   const task = await Task.findById(taskId);
 
   if (!task) {
-    throw new ApiError(404, 'Task not found'));
+    throw new ApiError(404, 'Task not found');
   }
 
   // Only creator or project admin can delete
@@ -128,7 +128,7 @@ export const deleteTask = asyncHandler(async (req, res) => {
     project.members.some((m) => m.user.toString() === req.user._id.toString() && m.role === 'admin');
 
   if (task.createdBy.toString() !== req.user._id.toString() && !isProjectAdmin) {
-    throw new ApiError(403, 'You do not have permission to delete this task'));
+    throw new ApiError(403, 'You do not have permission to delete this task');
   }
 
   await Task.deleteOne({ _id: taskId });
@@ -143,13 +143,13 @@ export const addComment = asyncHandler(async (req, res) => {
   const { text } = req.body;
 
   if (!text) {
-    throw new ApiError(400, 'Comment text is required'));
+    throw new ApiError(400, 'Comment text is required');
   }
 
   let task = await Task.findById(taskId);
 
   if (!task) {
-    throw new ApiError(404, 'Task not found'));
+    throw new ApiError(404, 'Task not found');
   }
 
   task.comments.push({

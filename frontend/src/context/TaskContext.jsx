@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import { createContext, useState, useCallback, useContext } from 'react';
 import { AuthContext } from './AuthContext';
 
@@ -68,18 +67,13 @@ export const TaskProvider = ({ children }) => {
 
   const createTask = useCallback(async (projectId, taskData) => {
     setError(null);
-    // Filter out empty assignee field
-    const filteredData = { ...taskData };
-    if (!filteredData.assignee || filteredData.assignee.trim() === '') {
-      delete filteredData.assignee;
-    }
     const response = await fetch(`${API_URL}/projects/${projectId}/tasks`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(filteredData),
+      body: JSON.stringify(taskData),
     });
     const data = await response.json();
     if (response.ok) {
@@ -95,11 +89,6 @@ export const TaskProvider = ({ children }) => {
     setError(null);
     // Extract projectId from the first task or pass it separately
     const projectId = tasks[0]?.project;
-    // Filter out empty assignee field
-    const filteredData = { ...taskData };
-    if (!filteredData.assignee || filteredData.assignee.trim() === '') {
-      delete filteredData.assignee;
-    }
     const response = await fetch(
       `${API_URL}/projects/${projectId}/tasks/${taskId}`,
       {
@@ -108,7 +97,7 @@ export const TaskProvider = ({ children }) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(filteredData),
+        body: JSON.stringify(taskData),
       }
     );
     const data = await response.json();

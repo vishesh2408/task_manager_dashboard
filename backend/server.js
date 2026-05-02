@@ -12,17 +12,16 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors({
-  origin: '*',
-  credentials: true,
-}));
+// Apply CORS
+app.use(cors());
+
+// Body parsers
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'OK', message: 'Server is running', timestamp: new Date().toISOString() });
+  res.status(200).json({ status: 'Server is running' });
 });
 
 // Routes
@@ -40,18 +39,19 @@ app.use((req, res) => {
 // Error handling middleware
 app.use(errorHandler);
 
-// Database connection and server start
+// Start server
 const startServer = async () => {
   try {
     console.log('Connecting to database...');
     await connectDB();
     console.log('Database connected successfully');
-    console.log(`Starting server on port ${PORT}...`);
+
     app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+      console.log(`🚀 Server running on port ${PORT}`);
     });
+
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error('❌ Failed to start server:', error);
     process.exit(1);
   }
 };

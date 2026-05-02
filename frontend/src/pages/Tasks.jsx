@@ -1,10 +1,9 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { TaskContext } from '../context/TaskContext';
 import { ProjectContext } from '../context/ProjectContext';
 import { AuthContext } from '../context/AuthContext';
 
-// eslint-disable-next-line no-unused-vars
 const styles = {
   container: {
     minHeight: '100vh',
@@ -234,10 +233,11 @@ const styles = {
 export default function Tasks() {
   const { projectId } = useParams();
   const navigate = useNavigate();
-  useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const { projects } = useContext(ProjectContext);
   const { tasks, fetchTasks, createTask, updateTask, deleteTask } = useContext(TaskContext);
   
+  const [project, setProject] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [formData, setFormData] = useState({
@@ -246,17 +246,14 @@ export default function Tasks() {
     priority: 'medium',
     dueDate: '',
     estimatedHours: 0,
-    assignee: '',
   });
   const [loading, setLoading] = useState(false);
 
-  const project = useMemo(() => {
-    return projects.find(p => p._id === projectId) ?? null;
-  }, [projects, projectId]);
-
   useEffect(() => {
-    if (project) fetchTasks(projectId);
-  }, [project, projectId, fetchTasks]);
+    const proj = projects.find(p => p._id === projectId);
+    setProject(proj);
+    if (proj) fetchTasks(projectId);
+  }, [projects, projectId, fetchTasks]);
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -267,7 +264,7 @@ export default function Tasks() {
       } else {
         await createTask(projectId, formData);
       }
-      setFormData({ title: '', description: '', priority: 'medium', dueDate: '', estimatedHours: 0, assignee: '' });
+      setFormData({ title: '', description: '', priority: 'medium', dueDate: '', estimatedHours: 0 });
       setShowForm(false);
       setSelectedTask(null);
     } catch (err) {
@@ -299,7 +296,6 @@ export default function Tasks() {
       priority: task.priority,
       dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '',
       estimatedHours: task.estimatedHours || 0,
-      assignee: task.assignee?.email || '',
     });
     setShowForm(true);
   };
@@ -308,33 +304,34 @@ export default function Tasks() {
 
   if (!project) {
     return (
-      <div className="authPage">
-        <div className="spinner" />
+      <div style={styles.loading}>
+        <p style={styles.loadingText}>Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="page">
-      <div className="container">
+    <div style={styles.container}>
+      <div style={styles.maxWidth}>
         {/* Header */}
-        <div className="row between" style={{ alignItems: 'flex-start', marginBottom: 18 }}>
+        <div style={styles.header}>
           <div>
-            <button onClick={() => navigate(`/projects/${projectId}`)} className="btn btnGhost">
+            <button
+              onClick={() => navigate(`/projects/${projectId}`)}
+              style={styles.backButton}
+            >
               ← Back
             </button>
-            <h1 style={{ marginTop: 12, fontSize: 28, fontWeight: 900, letterSpacing: 0.2 }}>
-              {project.name} · Tasks
-            </h1>
-            <p className="muted" style={{ marginTop: 6 }}>{tasks.length} tasks</p>
+            <h1 style={styles.headerTitle}>{project.name} - Tasks</h1>
+            <p style={styles.headerSubtitle}>{tasks.length} tasks</p>
           </div>
           <button
             onClick={() => {
               setSelectedTask(null);
-              setFormData({ title: '', description: '', priority: 'medium', dueDate: '', estimatedHours: 0, assignee: '' });
+              setFormData({ title: '', description: '', priority: 'medium', dueDate: '', estimatedHours: 0 });
               setShowForm(!showForm);
             }}
-            className={showForm && !selectedTask ? 'btn btnGhost' : 'btn btnPrimary'}
+            style={styles.newTaskButton}
           >
             {showForm && !selectedTask ? 'Cancel' : '+ New Task'}
           </button>
@@ -342,49 +339,45 @@ export default function Tasks() {
 
         {/* Create/Edit Form */}
         {showForm && (
-          <div className="card cardPad" style={{ marginBottom: 18 }}>
-            <h2 className="cardTitle">
+          <div style={styles.formContainer}>
+            <h2 style={styles.formTitle}>
               {selectedTask ? 'Edit Task' : 'Create New Task'}
             </h2>
-            <form onSubmit={handleFormSubmit} className="stack" style={{ marginTop: 14 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                <div>
-                  <label className="label">Task title</label>
-                  <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="input" required />
+            <form onSubmit={handleFormSubmit} style={styles.form}>
+              <div style={{...styles.formGrid, ...styles.mdGrid2}}>
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Task Title</label>
+                  <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} style={styles.input} required />
                 </div>
-                <div>
-                  <label className="label">Priority</label>
-                  <select value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value })} className="select">
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Priority</label>
+                  <select value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value })} style={styles.select}>
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
                     <option value="high">High</option>
                   </select>
                 </div>
               </div>
-              <div>
-                <label className="label">Description</label>
-                <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="textarea" />
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Description</label>
+                <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} style={styles.textarea} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                <div>
-                  <label className="label">Due date</label>
-                  <input type="date" value={formData.dueDate} onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })} className="input" />
+              <div style={{...styles.formGrid, ...styles.mdGrid2}}>
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Due Date</label>
+                  <input type="date" value={formData.dueDate} onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })} style={styles.input} />
                 </div>
-                <div>
-                  <label className="label">Estimated hours</label>
-                  <input type="number" value={formData.estimatedHours} onChange={(e) => setFormData({ ...formData, estimatedHours: Number(e.target.value) })} className="input" />
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Estimated Hours</label>
+                  <input type="number" value={formData.estimatedHours} onChange={(e) => setFormData({ ...formData, estimatedHours: Number(e.target.value) })} style={styles.input} />
                 </div>
               </div>
-              <div>
-                <label className="label">Assignee Email (optional)</label>
-                <input type="email" value={formData.assignee} onChange={(e) => setFormData({ ...formData, assignee: e.target.value })} className="input" placeholder="user@example.com" />
-              </div>
-              <div className="row" style={{ justifyContent: 'flex-end', marginTop: 4 }}>
-                <button type="submit" disabled={loading} className="btn btnPrimary">
+              <div style={styles.buttonGroup}>
+                <button type="submit" disabled={loading} style={{...styles.submitButton, ...(loading ? {opacity: 0.5} : {})}}>
                   {loading ? 'Saving...' : selectedTask ? 'Update Task' : 'Create Task'}
                 </button>
                 {selectedTask && (
-                  <button type="button" onClick={() => handleDeleteTask(selectedTask._id)} className="btn btnDanger">
+                  <button type="button" onClick={() => handleDeleteTask(selectedTask._id)} style={styles.deleteButton}>
                     Delete
                   </button>
                 )}
@@ -394,28 +387,26 @@ export default function Tasks() {
         )}
 
         {/* Kanban Board */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
+        <div style={styles.kanbanBoard}>
           {statuses.map(status => {
             const tasksInStatus = tasks.filter(t => t.status === status);
             return (
-              <div key={status} className="card cardPad">
-                <div className="row between" style={{ marginBottom: 12 }}>
-                  <h3 style={{ fontSize: 14.5, fontWeight: 850, textTransform: 'capitalize' }}>
-                    {status.replace('-', ' ')}
-                  </h3>
-                  <span className="badge">{tasksInStatus.length}</span>
+              <div key={status} style={styles.kanbanColumn}>
+                <div style={styles.kanbanColumnHeader}>
+                  <h3 style={styles.kanbanColumnTitle}>{status.replace('-', ' ')}</h3>
+                  <span style={styles.taskCount}>{tasksInStatus.length}</span>
                 </div>
-                <div className="stack" style={{ gap: 10 }}>
+                <div style={styles.kanbanTasks}>
                   {tasksInStatus.map(task => (
-                    <div key={task._id} className="card" style={{ padding: 14, cursor: 'pointer' }} onClick={() => handleSelectTask(task)}>
-                      <div className="row between" style={{ alignItems: 'flex-start' }}>
-                        <p style={{ fontWeight: 850 }}>{task.title}</p>
-                        <span className="badge">{task.priority}</span>
+                    <div key={task._id} style={styles.taskCard} onClick={() => handleSelectTask(task)}>
+                      <div style={styles.taskCardHeader}>
+                        <p style={styles.taskTitle}>{task.title}</p>
+                        <span style={{...styles.priorityBadge, ...styles.priorityColors[task.priority]}}>{task.priority}</span>
                       </div>
-                      <p className="muted" style={{ marginTop: 8, fontSize: 13 }}>{task.description}</p>
-                      <div className="row between" style={{ marginTop: 10, fontSize: 12.5 }}>
+                      <p style={styles.taskDescription}>{task.description}</p>
+                      <div style={styles.taskFooter}>
                         {task.dueDate && (
-                          <span className="muted" style={{ color: task.isOverdue ? 'rgba(255,160,160,0.95)' : undefined }}>
+                          <span style={{...styles.dueDate, ...(task.isOverdue ? styles.overdue : {})}}>
                             Due: {new Date(task.dueDate).toLocaleDateString()}
                           </span>
                         )}
