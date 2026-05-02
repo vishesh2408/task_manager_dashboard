@@ -3,7 +3,7 @@ import { AuthContext } from './AuthContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-export const TaskContext = createContext({
+const TaskContext = createContext({
   tasks: [],
   taskStats: null,
   loading: false,
@@ -15,6 +15,8 @@ export const TaskContext = createContext({
   deleteTask: () => {},
   addComment: () => {},
 });
+
+export { TaskContext };
 
 export const TaskProvider = ({ children }) => {
   const { token } = useContext(AuthContext);

@@ -1,8 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { TaskContext } from '../context/TaskContext';
 import { ProjectContext } from '../context/ProjectContext';
-import { AuthContext } from '../context/AuthContext';
 
 const styles = {
   container: {
@@ -233,11 +232,10 @@ const styles = {
 export default function Tasks() {
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
   const { projects } = useContext(ProjectContext);
   const { tasks, fetchTasks, createTask, updateTask, deleteTask } = useContext(TaskContext);
   
-  const [project, setProject] = useState(null);
+  const project = useMemo(() => projects.find(p => p._id === projectId), [projects, projectId]);
   const [showForm, setShowForm] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [formData, setFormData] = useState({
@@ -250,10 +248,10 @@ export default function Tasks() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const proj = projects.find(p => p._id === projectId);
-    setProject(proj);
-    if (proj) fetchTasks(projectId);
-  }, [projects, projectId, fetchTasks]);
+    if (project) {
+      fetchTasks(projectId);
+    }
+  }, [project, projectId, fetchTasks]);
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
