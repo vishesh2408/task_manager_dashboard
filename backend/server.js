@@ -22,7 +22,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'Server is running' });
+  res.status(200).json({ status: 'OK', message: 'Server is running', timestamp: new Date().toISOString() });
 });
 
 // Routes
