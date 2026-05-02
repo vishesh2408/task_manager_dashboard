@@ -20,139 +20,203 @@ export { TaskContext };
 
 export const TaskProvider = ({ children }) => {
   const { token } = useContext(AuthContext);
+
   const [tasks, setTasks] = useState([]);
   const [taskStats, setTaskStats] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // 🔹 FETCH TASKS
   const fetchTasks = useCallback(async (projectId, filters = {}) => {
     if (!token) return;
 
     try {
       setLoading(true);
       setError(null);
+
       const params = new URLSearchParams(filters);
+
       const response = await fetch(
         `${API_URL}/projects/${projectId}/tasks?${params}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-      const data = await response.json();
-      if (response.ok) {
-        setTasks(data.data);
-      } else {
-        setError(data.message);
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch tasks');
       }
+
+      setTasks(data.data || []);
+
     } catch (err) {
-      setError('Failed to fetch tasks');
-      console.error(err);
+      setError(err.message);
+      console.error('🔥 Fetch Tasks Error:', err);
     } finally {
       setLoading(false);
     }
   }, [token]);
 
+  // 🔹 FETCH STATS
   const fetchTaskStats = useCallback(async (projectId) => {
     if (!token) return;
 
     try {
       const response = await fetch(
         `${API_URL}/projects/${projectId}/tasks/stats`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-      const data = await response.json();
+
+      const data = await response.json().catch(() => ({}));
+
       if (response.ok) {
         setTaskStats(data.data);
       }
+
     } catch (err) {
-      console.error('Failed to fetch task stats:', err);
+      console.error('🔥 Task Stats Error:', err);
     }
   }, [token]);
 
+  // 🔹 CREATE TASK
   const createTask = useCallback(async (projectId, taskData) => {
     setError(null);
-    const response = await fetch(`${API_URL}/projects/${projectId}/tasks`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(taskData),
-    });
-    const data = await response.json();
-    if (response.ok) {
-      setTasks([data.data, ...tasks]);
-      return data.data;
-    } else {
-      setError(data.message);
-      throw new Error(data.message);
-    }
-  }, [token, tasks]);
 
-  const updateTask = useCallback(async (taskId, taskData) => {
-    setError(null);
-    // Extract projectId from the first task or pass it separately
-    const projectId = tasks[0]?.project;
-    const response = await fetch(
-      `${API_URL}/projects/${projectId}/tasks/${taskId}`,
-      {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(taskData),
-      }
-    );
-    const data = await response.json();
-    if (response.ok) {
-      setTasks(tasks.map(t => t._id === taskId ? data.data : t));
-      return data.data;
-    } else {
-      setError(data.message);
-      throw new Error(data.message);
-    }
-  }, [token, tasks]);
-
-  const deleteTask = useCallback(async (taskId) => {
-    setError(null);
-    const projectId = tasks[0]?.project;
-    const response = await fetch(
-      `${API_URL}/projects/${projectId}/tasks/${taskId}`,
-      {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    if (response.ok) {
-      setTasks(tasks.filter(t => t._id !== taskId));
-    } else {
-      const data = await response.json();
-      setError(data.message);
-      throw new Error(data.message);
-    }
-  }, [token, tasks]);
-
-  const addComment = useCallback(async (taskId, text) => {
-    setError(null);
-    const projectId = tasks[0]?.project;
-    const response = await fetch(
-      `${API_URL}/projects/${projectId}/tasks/${taskId}/comments`,
-      {
+    try {
+      const response = await fetch(`${API_URL}/projects/${projectId}/tasks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify(taskData),
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to create task');
       }
-    );
-    const data = await response.json();
-    if (response.ok) {
-      setTasks(tasks.map(t => t._id === taskId ? { ...t, comments: data.data } : t));
-    } else {
-      setError(data.message);
-      throw new Error(data.message);
+
+      setTasks(prev => [data.data, ...prev]);
+
+      return data.data;
+
+    } catch (err) {
+      setError(err.message);
+      console.error('🔥 Create Task Error:', err);
+      throw err;
     }
-  }, [token, tasks]);
+  }, [token]);
+
+  // 🔹 UPDATE TASK
+  const updateTask = useCallback(async (projectId, taskId, taskData) => {
+    setError(null);
+
+    try {
+      const response = await fetch(
+        `${API_URL}/projects/${projectId}/tasks/${taskId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(taskData),
+        }
+      );
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update task');
+      }
+
+      setTasks(prev =>
+        prev.map(t => (t._id === taskId ? data.data : t))
+      );
+
+      return data.data;
+
+    } catch (err) {
+      setError(err.message);
+      console.error('🔥 Update Task Error:', err);
+      throw err;
+    }
+  }, [token]);
+
+  // 🔹 DELETE TASK
+  const deleteTask = useCallback(async (projectId, taskId) => {
+    setError(null);
+
+    try {
+      const response = await fetch(
+        `${API_URL}/projects/${projectId}/tasks/${taskId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || 'Failed to delete task');
+      }
+
+      setTasks(prev => prev.filter(t => t._id !== taskId));
+
+    } catch (err) {
+      setError(err.message);
+      console.error('🔥 Delete Task Error:', err);
+      throw err;
+    }
+  }, [token]);
+
+  // 🔹 ADD COMMENT
+  const addComment = useCallback(async (projectId, taskId, text) => {
+    setError(null);
+
+    try {
+      const response = await fetch(
+        `${API_URL}/projects/${projectId}/tasks/${taskId}/comments`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ text }),
+        }
+      );
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to add comment');
+      }
+
+      setTasks(prev =>
+        prev.map(t =>
+          t._id === taskId ? { ...t, comments: data.data } : t
+        )
+      );
+
+    } catch (err) {
+      setError(err.message);
+      console.error('🔥 Add Comment Error:', err);
+      throw err;
+    }
+  }, [token]);
 
   const value = {
     tasks,
@@ -167,5 +231,9 @@ export const TaskProvider = ({ children }) => {
     addComment,
   };
 
-  return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;
+  return (
+    <TaskContext.Provider value={value}>
+      {children}
+    </TaskContext.Provider>
+  );
 };

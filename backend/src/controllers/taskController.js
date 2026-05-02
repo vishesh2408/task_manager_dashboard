@@ -2,21 +2,17 @@ import Task from '../models/Task.js';
 import Project from '../models/Project.js';
 import { ApiResponse, ApiError, asyncHandler } from '../utils/apiResponse.js';
 
+// CREATE
 export const createTask = asyncHandler(async (req, res) => {
   const { projectId } = req.params;
   const { title, description, assignee, priority, dueDate, estimatedHours, tags } = req.body;
 
-  if (!title) {
-    throw new ApiError(400, 'Task title is required');
-  }
+  if (!title) throw new ApiError(400, 'Task title is required');
 
-  // Check project exists and user has access
   const project = await Project.findById(projectId);
-  if (!project) {
-    throw new ApiError(404, 'Project not found');
-  }
+  if (!project) throw new ApiError(404, 'Project not found');
 
-  const task = new Task({
+  const task = await Task.create({
     title,
     description,
     project: projectId,
@@ -28,24 +24,16 @@ export const createTask = asyncHandler(async (req, res) => {
     tags: tags || [],
   });
 
-  await task.save();
   await task.populate('createdBy', 'name email');
   await task.populate('assignee', 'name email');
 
-  res.status(201).json(
-    new ApiResponse(201, task, 'Task created successfully')
-  );
+  res.status(201).json(new ApiResponse(201, task, 'Task created successfully'));
 });
 
+// GET ALL
 export const getProjectTasks = asyncHandler(async (req, res) => {
   const { projectId } = req.params;
   const { status, assignee, priority, sortBy } = req.query;
-
-  // Check project exists
-  const project = await Project.findById(projectId);
-  if (!project) {
-    throw new ApiError(404, 'Project not found');
-  }
 
   let filter = { project: projectId };
 
@@ -62,109 +50,64 @@ export const getProjectTasks = asyncHandler(async (req, res) => {
     .populate('assignee', 'name email')
     .sort(sortOption);
 
-  res.status(200).json(
-    new ApiResponse(200, tasks, 'Tasks retrieved successfully')
-  );
+  res.status(200).json(new ApiResponse(200, tasks));
 });
 
+// GET ONE
 export const getTaskById = asyncHandler(async (req, res) => {
-  const { taskId } = req.params;
-
-  const task = await Task.findById(taskId)
+  const task = await Task.findById(req.params.taskId)
     .populate('createdBy', 'name email')
     .populate('assignee', 'name email')
     .populate('comments.user', 'name email avatar');
 
-  if (!task) {
-    throw new ApiError(404, 'Task not found');
-  }
+  if (!task) throw new ApiError(404, 'Task not found');
 
-  res.status(200).json(
-    new ApiResponse(200, task, 'Task retrieved successfully')
-  );
+  res.status(200).json(new ApiResponse(200, task));
 });
 
+// UPDATE
 export const updateTask = asyncHandler(async (req, res) => {
-  const { taskId } = req.params;
-  const { title, description, assignee, status, priority, dueDate, estimatedHours, actualHours, tags } = req.body;
+  const task = await Task.findById(req.params.taskId);
 
-  let task = await Task.findById(taskId);
+  if (!task) throw new ApiError(404, 'Task not found');
 
-  if (!task) {
-    throw new ApiError(404, 'Task not found');
-  }
-
-  if (title) task.title = title;
-  if (description !== undefined) task.description = description;
-  if (assignee !== undefined) task.assignee = assignee;
-  if (status) task.status = status;
-  if (priority) task.priority = priority;
-  if (dueDate !== undefined) task.dueDate = dueDate;
-  if (estimatedHours !== undefined) task.estimatedHours = estimatedHours;
-  if (actualHours !== undefined) task.actualHours = actualHours;
-  if (tags) task.tags = tags;
+  Object.assign(task, req.body);
 
   await task.save();
   await task.populate('createdBy', 'name email');
   await task.populate('assignee', 'name email');
 
-  res.status(200).json(
-    new ApiResponse(200, task, 'Task updated successfully')
-  );
+  res.status(200).json(new ApiResponse(200, task, 'Task updated'));
 });
 
+// DELETE
 export const deleteTask = asyncHandler(async (req, res) => {
-  const { taskId } = req.params;
+  const task = await Task.findById(req.params.taskId);
 
-  const task = await Task.findById(taskId);
+  if (!task) throw new ApiError(404, 'Task not found');
 
-  if (!task) {
-    throw new ApiError(404, 'Task not found');
-  }
+  await task.deleteOne();
 
-  // Only creator or project admin can delete
-  const project = await Project.findById(task.project);
-  const isProjectAdmin = project.owner.toString() === req.user._id.toString() ||
-    project.members.some((m) => m.user.toString() === req.user._id.toString() && m.role === 'admin');
-
-  if (task.createdBy.toString() !== req.user._id.toString() && !isProjectAdmin) {
-    throw new ApiError(403, 'You do not have permission to delete this task');
-  }
-
-  await Task.deleteOne({ _id: taskId });
-
-  res.status(200).json(
-    new ApiResponse(200, null, 'Task deleted successfully')
-  );
+  res.status(200).json(new ApiResponse(200, null, 'Task deleted'));
 });
 
+// COMMENT
 export const addComment = asyncHandler(async (req, res) => {
-  const { taskId } = req.params;
   const { text } = req.body;
+  if (!text) throw new ApiError(400, 'Comment text required');
 
-  if (!text) {
-    throw new ApiError(400, 'Comment text is required');
-  }
+  const task = await Task.findById(req.params.taskId);
+  if (!task) throw new ApiError(404, 'Task not found');
 
-  let task = await Task.findById(taskId);
-
-  if (!task) {
-    throw new ApiError(404, 'Task not found');
-  }
-
-  task.comments.push({
-    user: req.user._id,
-    text,
-  });
+  task.comments.push({ user: req.user._id, text });
 
   await task.save();
   await task.populate('comments.user', 'name email avatar');
 
-  res.status(200).json(
-    new ApiResponse(200, task.comments, 'Comment added successfully')
-  );
+  res.status(200).json(new ApiResponse(200, task.comments));
 });
 
+// STATS
 export const getTaskStats = asyncHandler(async (req, res) => {
   const { projectId } = req.params;
 
@@ -172,17 +115,10 @@ export const getTaskStats = asyncHandler(async (req, res) => {
 
   const stats = {
     total: tasks.length,
-    completed: tasks.filter((t) => t.status === 'completed').length,
-    inProgress: tasks.filter((t) => t.status === 'in-progress').length,
-    overdue: tasks.filter((t) => t.isOverdue).length,
-    byPriority: {
-      high: tasks.filter((t) => t.priority === 'high').length,
-      medium: tasks.filter((t) => t.priority === 'medium').length,
-      low: tasks.filter((t) => t.priority === 'low').length,
-    },
+    completed: tasks.filter(t => t.status === 'completed').length,
+    inProgress: tasks.filter(t => t.status === 'in-progress').length,
+    overdue: tasks.filter(t => t.isOverdue).length,
   };
 
-  res.status(200).json(
-    new ApiResponse(200, stats, 'Task stats retrieved successfully')
-  );
+  res.status(200).json(new ApiResponse(200, stats));
 });

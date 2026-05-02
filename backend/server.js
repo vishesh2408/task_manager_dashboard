@@ -12,39 +12,38 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Apply CORS
+// ✅ Simple CORS (as you want)
 app.use(cors());
 
-// Body parsers
+// ✅ Body parsers
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Health check
+// ✅ Health check
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'Server is running' });
 });
 
-// Routes
-console.log('Registering routes...');
+// ✅ Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/projects/:projectId/tasks', taskRoutes);
-console.log('Routes registered successfully');
 
-// 404 handler
+// ✅ 404 handler
 app.use((req, res) => {
-  res.status(404).json({ success: false, message: 'Route not found' });
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
+  });
 });
 
-// Error handling middleware
+// ✅ Error handler (must be last)
 app.use(errorHandler);
 
-// Start server
+// ✅ Start server
 const startServer = async () => {
   try {
-    console.log('Connecting to database...');
     await connectDB();
-    console.log('Database connected successfully');
 
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);

@@ -10,23 +10,21 @@ export const authenticate = async (req, res, next) => {
       req.cookies?.accessToken;
 
     if (!token) {
-      throw new ApiError(401, 'No token provided, please login');
+      return next(new ApiError(401, 'No token provided'));
     }
 
-    const decoded = verifyToken(token);
-    if (!decoded) {
-      throw new ApiError(401, 'Invalid or expired token');
-    }
+    const decoded = verifyToken(token); // now throws error automatically
 
     const user = await User.findById(decoded.userId);
+
     if (!user) {
-      throw new ApiError(404, 'User not found');
+      return next(new ApiError(404, 'User not found'));
     }
 
     req.user = user;
     next();
   } catch (error) {
-    next(error);
+    next(error); // ✅ safe now
   }
 };
 

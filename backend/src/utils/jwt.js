@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { ApiError } from './apiResponse.js';
 
 export const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, {
@@ -6,11 +7,12 @@ export const generateToken = (userId) => {
   });
 };
 
+// ✅ FIXED
 export const verifyToken = (token) => {
   try {
     return jwt.verify(token, process.env.JWT_SECRET);
   } catch (error) {
-    return null;
+    throw new ApiError(401, 'Invalid or expired token');
   }
 };
 

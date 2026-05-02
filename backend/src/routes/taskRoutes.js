@@ -8,13 +8,18 @@ import {
   addComment,
   getTaskStats,
 } from '../controllers/taskController.js';
+
 import { authenticate, authorizeProjectAccess } from '../middlewares/auth.js';
 
 const router = express.Router({ mergeParams: true });
 
-// All task routes require authentication
+// ✅ Authentication
 router.use(authenticate);
 
+// ✅ Authorization (IMPORTANT FIX)
+router.use(authorizeProjectAccess);
+
+// Routes
 router.post('/', createTask);
 router.get('/', getProjectTasks);
 router.get('/stats', getTaskStats);

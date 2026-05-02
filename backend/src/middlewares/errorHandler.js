@@ -1,51 +1,54 @@
-import { ApiError, ApiResponse } from '../utils/apiResponse.js';
+import { ApiError } from '../utils/apiResponse.js';
 
 export const errorHandler = (err, req, res, next) => {
-  if (err instanceof ApiError) {
-    return res.status(err.statusCode).json({
-      success: false,
-      message: err.message,
-      errors: err.errors || [],
-    });
-  }
+  // ✅ 1. Log error (VERY IMPORTANT)
+  console.error('🔥 ERROR:', {
+    message: err.message,
+    stack: err.stack,
+    statusCode: err.statusCode,
+  });
 
-  // Mongoose validation error
+  // ✅ 2. Default values
+  let statusCode = err.statusCode || 500;
+  let message = err.message || 'Internal Server Error';
+  let errors = err.errors || [];
+
+  // ✅ 3. Mongoose Validation Error
   if (err.name === 'ValidationError') {
-    const errors = Object.values(err.errors).map((e) => e.message);
-    return res.status(400).json({
-      success: false,
-      message: 'Validation error',
-      errors,
-    });
+    statusCode = 400;
+    message = 'Validation Error';
+    errors = Object.values(err.errors).map(e => e.message);
   }
 
-  // Mongoose duplicate key error
+  // ✅ 4. Duplicate Key Error (MongoDB)
   if (err.code === 11000) {
+    statusCode = 409;
     const field = Object.keys(err.keyPattern)[0];
-    return res.status(409).json({
-      success: false,
-      message: `${field} already exists`,
-    });
+    message = `${field} already exists`;
   }
 
-  // JWT errors
+  // ✅ 5. Invalid ObjectId
+  if (err.name === 'CastError') {
+    statusCode = 400;
+    message = `Invalid ${err.path}`;
+  }
+
+  // ✅ 6. JWT Errors
   if (err.name === 'JsonWebTokenError') {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid token',
-    });
+    statusCode = 401;
+    message = 'Invalid token';
   }
 
   if (err.name === 'TokenExpiredError') {
-    return res.status(401).json({
-      success: false,
-      message: 'Token expired',
-    });
+    statusCode = 401;
+    message = 'Token expired';
   }
 
-  // Default error
-  return res.status(err.statusCode || 500).json({
+  // ✅ 7. Final Response
+  res.status(statusCode).json({
     success: false,
-    message: err.message || 'Internal server error',
+    message,
+    errors,
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }) // 🔥 only in dev
   });
 };
