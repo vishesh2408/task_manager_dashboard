@@ -41,6 +41,26 @@ export default function Dashboard() {
           <p className="muted" style={{ marginTop: 8 }}>Track your projects and tasks at a glance</p>
         </div>
 
+        {/* Quick Stats */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 18 }}>
+          <div className="card cardPad" style={{ textAlign: 'center' }}>
+            <div className="muted" style={{ fontSize: 13, fontWeight: 650, marginBottom: 8 }}>Total Projects</div>
+            <div style={{ fontSize: 28, fontWeight: 950, color: '#3b82f6' }}>{projects.length}</div>
+          </div>
+          <div className="card cardPad" style={{ textAlign: 'center' }}>
+            <div className="muted" style={{ fontSize: 13, fontWeight: 650, marginBottom: 8 }}>Total Tasks</div>
+            <div style={{ fontSize: 28, fontWeight: 950, color: '#10b981' }}>{tasks.length}</div>
+          </div>
+          <div className="card cardPad" style={{ textAlign: 'center' }}>
+            <div className="muted" style={{ fontSize: 13, fontWeight: 650, marginBottom: 8 }}>Active Tasks</div>
+            <div style={{ fontSize: 28, fontWeight: 950, color: '#f59e0b' }}>{activeTasks.length}</div>
+          </div>
+          <div className="card cardPad" style={{ textAlign: 'center' }}>
+            <div className="muted" style={{ fontSize: 13, fontWeight: 650, marginBottom: 8 }}>Completed</div>
+            <div style={{ fontSize: 28, fontWeight: 950, color: '#8b5cf6' }}>{completedTasks.length}</div>
+          </div>
+        </div>
+
         {/* Project Selector */}
         <div className="card cardPad" style={{ marginBottom: 18 }}>
           <label className="label">Select project</label>
