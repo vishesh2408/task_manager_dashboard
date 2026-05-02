@@ -13,13 +13,12 @@ export class ApiError extends Error {
     this.statusCode = statusCode;
     this.errors = errors;
     this.success = false;
+
+    Error.captureStackTrace(this, this.constructor);
   }
 }
 
-export const asyncHandler = (fn) => async (req, res, next) => {
-  try {
-    await fn(req, res, next);
-  } catch (error) {
-    next(error);
-  }
+// ✅ FINAL FIXED VERSION
+export const asyncHandler = (fn) => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
 };
