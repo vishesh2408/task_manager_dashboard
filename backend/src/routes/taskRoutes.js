@@ -40,7 +40,7 @@ router.get(
     query('status').optional().isIn(['todo', 'in-progress', 'review', 'completed']).withMessage('Invalid status'),
     query('priority').optional().isIn(['low', 'medium', 'high']).withMessage('Invalid priority'),
     query('sortBy').optional().isIn(['dueDate', 'priority', 'createdAt']).withMessage('Invalid sortBy'),
-    query('assignee').optional().isMongoId().withMessage('Assignee must be a valid user id'),
+    query('assignee').optional().isEmail().withMessage('Assignee must be a valid email address'),
   ],
   validateRequest,
   getProjectTasks
@@ -59,7 +59,7 @@ router.put(
     param('taskId').isMongoId().withMessage('Invalid task id'),
     body('title').optional().trim().notEmpty().withMessage('Task title cannot be empty'),
     body('description').optional().isString().withMessage('Description must be a string'),
-    body('assignee').optional({ nullable: true }).isMongoId().withMessage('Assignee must be a valid user id'),
+    body('assignee').optional({ nullable: true }).isEmail().withMessage('Assignee must be a valid email address'),
     body('status').optional().isIn(['todo', 'in-progress', 'review', 'completed']).withMessage('Invalid status'),
     body('priority').optional().isIn(['low', 'medium', 'high']).withMessage('Invalid priority'),
     body('dueDate').optional({ nullable: true }).isISO8601().withMessage('Due date must be a valid date'),
