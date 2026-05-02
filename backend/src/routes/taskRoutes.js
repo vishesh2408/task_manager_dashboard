@@ -24,7 +24,7 @@ router.post(
   [
     body('title').trim().notEmpty().withMessage('Task title is required'),
     body('description').optional().isString().withMessage('Description must be a string'),
-    body('assignee').optional({ nullable: true }).isMongoId().withMessage('Assignee must be a valid user id'),
+    body('assignee').optional({ nullable: true }).isEmail().withMessage('Assignee must be a valid email address'),
     body('priority').optional().isIn(['low', 'medium', 'high']).withMessage('Invalid priority'),
     body('dueDate').optional({ nullable: true }).isISO8601().withMessage('Due date must be a valid date'),
     body('estimatedHours').optional().isNumeric().withMessage('Estimated hours must be a number'),

@@ -246,6 +246,7 @@ export default function Tasks() {
     priority: 'medium',
     dueDate: '',
     estimatedHours: 0,
+    assignee: '',
   });
   const [loading, setLoading] = useState(false);
 
@@ -266,7 +267,7 @@ export default function Tasks() {
       } else {
         await createTask(projectId, formData);
       }
-      setFormData({ title: '', description: '', priority: 'medium', dueDate: '', estimatedHours: 0 });
+      setFormData({ title: '', description: '', priority: 'medium', dueDate: '', estimatedHours: 0, assignee: '' });
       setShowForm(false);
       setSelectedTask(null);
     } catch (err) {
@@ -298,6 +299,7 @@ export default function Tasks() {
       priority: task.priority,
       dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '',
       estimatedHours: task.estimatedHours || 0,
+      assignee: task.assignee?.email || '',
     });
     setShowForm(true);
   };
@@ -329,7 +331,7 @@ export default function Tasks() {
           <button
             onClick={() => {
               setSelectedTask(null);
-              setFormData({ title: '', description: '', priority: 'medium', dueDate: '', estimatedHours: 0 });
+              setFormData({ title: '', description: '', priority: 'medium', dueDate: '', estimatedHours: 0, assignee: '' });
               setShowForm(!showForm);
             }}
             className={showForm && !selectedTask ? 'btn btnGhost' : 'btn btnPrimary'}
@@ -372,6 +374,10 @@ export default function Tasks() {
                   <label className="label">Estimated hours</label>
                   <input type="number" value={formData.estimatedHours} onChange={(e) => setFormData({ ...formData, estimatedHours: Number(e.target.value) })} className="input" />
                 </div>
+              </div>
+              <div>
+                <label className="label">Assignee Email (optional)</label>
+                <input type="email" value={formData.assignee} onChange={(e) => setFormData({ ...formData, assignee: e.target.value })} className="input" placeholder="user@example.com" />
               </div>
               <div className="row" style={{ justifyContent: 'flex-end', marginTop: 4 }}>
                 <button type="submit" disabled={loading} className="btn btnPrimary">
