@@ -1,9 +1,8 @@
 import Task from '../models/Task.js';
 import Project from '../models/Project.js';
-import User from '../models/User.js';
 import { ApiResponse, ApiError, asyncHandler } from '../utils/apiResponse.js';
 
-export const createTask = asyncHandler(async (req, res, next) => {
+export const createTask = asyncHandler(async (req, res) => {
   const { projectId } = req.params;
   const { title, description, assignee, priority, dueDate, estimatedHours, tags } = req.body;
 
@@ -17,22 +16,12 @@ export const createTask = asyncHandler(async (req, res, next) => {
     throw new ApiError(404, 'Project not found');
   }
 
-  // If assignee is provided, find user by email
-  let assigneeId = null;
-  if (assignee) {
-    const assigneeUser = await User.findOne({ email: assignee });
-    if (!assigneeUser) {
-      throw new ApiError(404, 'Assignee user not found');
-    }
-    assigneeId = assigneeUser._id;
-  }
-
   const task = new Task({
     title,
     description,
     project: projectId,
     createdBy: req.user._id,
-    assignee: assigneeId,
+    assignee: assignee || null,
     priority,
     dueDate,
     estimatedHours,
@@ -48,14 +37,14 @@ export const createTask = asyncHandler(async (req, res, next) => {
   );
 });
 
-export const getProjectTasks = asyncHandler(async (req, res, next) => {
+export const getProjectTasks = asyncHandler(async (req, res) => {
   const { projectId } = req.params;
   const { status, assignee, priority, sortBy } = req.query;
 
   // Check project exists
   const project = await Project.findById(projectId);
   if (!project) {
-    throw new ApiError(404, 'Project not found');
+    throw new ApiError(404, 'Project not found'));
   }
 
   let filter = { project: projectId };
@@ -78,8 +67,7 @@ export const getProjectTasks = asyncHandler(async (req, res, next) => {
   );
 });
 
-export const getTaskById = asyncHandler(async (req, res, next) => {
-  const { projectId } = req.params;
+export const getTaskById = asyncHandler(async (req, res) => {
   const { taskId } = req.params;
 
   const task = await Task.findById(taskId)
@@ -88,11 +76,7 @@ export const getTaskById = asyncHandler(async (req, res, next) => {
     .populate('comments.user', 'name email avatar');
 
   if (!task) {
-    throw new ApiError(404, 'Task not found');
-  }
-  // Ensure task belongs to the project in the route
-  if (task.project.toString() !== projectId) {
-    throw new ApiError(404, 'Task not found');
+    throw new ApiError(404, 'Task not found'));
   }
 
   res.status(200).json(
@@ -100,33 +84,19 @@ export const getTaskById = asyncHandler(async (req, res, next) => {
   );
 });
 
-export const updateTask = asyncHandler(async (req, res, next) => {
-  const { projectId } = req.params;
+export const updateTask = asyncHandler(async (req, res) => {
   const { taskId } = req.params;
   const { title, description, assignee, status, priority, dueDate, estimatedHours, actualHours, tags } = req.body;
 
   let task = await Task.findById(taskId);
 
   if (!task) {
-    throw new ApiError(404, 'Task not found');
-  }
-  if (task.project.toString() !== projectId) {
-    throw new ApiError(404, 'Task not found');
+    throw new ApiError(404, 'Task not found'));
   }
 
   if (title) task.title = title;
   if (description !== undefined) task.description = description;
-  if (assignee !== undefined) {
-    if (assignee) {
-      const assigneeUser = await User.findOne({ email: assignee });
-      if (!assigneeUser) {
-        throw new ApiError(404, 'Assignee user not found');
-      }
-      task.assignee = assigneeUser._id;
-    } else {
-      task.assignee = null;
-    }
-  }
+  if (assignee !== undefined) task.assignee = assignee;
   if (status) task.status = status;
   if (priority) task.priority = priority;
   if (dueDate !== undefined) task.dueDate = dueDate;
@@ -143,17 +113,13 @@ export const updateTask = asyncHandler(async (req, res, next) => {
   );
 });
 
-export const deleteTask = asyncHandler(async (req, res, next) => {
-  const { projectId } = req.params;
+export const deleteTask = asyncHandler(async (req, res) => {
   const { taskId } = req.params;
 
   const task = await Task.findById(taskId);
 
   if (!task) {
-    throw new ApiError(404, 'Task not found');
-  }
-  if (task.project.toString() !== projectId) {
-    throw new ApiError(404, 'Task not found');
+    throw new ApiError(404, 'Task not found'));
   }
 
   // Only creator or project admin can delete
@@ -162,7 +128,7 @@ export const deleteTask = asyncHandler(async (req, res, next) => {
     project.members.some((m) => m.user.toString() === req.user._id.toString() && m.role === 'admin');
 
   if (task.createdBy.toString() !== req.user._id.toString() && !isProjectAdmin) {
-    throw new ApiError(403, 'You do not have permission to delete this task');
+    throw new ApiError(403, 'You do not have permission to delete this task'));
   }
 
   await Task.deleteOne({ _id: taskId });
@@ -172,22 +138,18 @@ export const deleteTask = asyncHandler(async (req, res, next) => {
   );
 });
 
-export const addComment = asyncHandler(async (req, res, next) => {
-  const { projectId } = req.params;
+export const addComment = asyncHandler(async (req, res) => {
   const { taskId } = req.params;
   const { text } = req.body;
 
   if (!text) {
-    throw new ApiError(400, 'Comment text is required');
+    throw new ApiError(400, 'Comment text is required'));
   }
 
   let task = await Task.findById(taskId);
 
   if (!task) {
-    throw new ApiError(404, 'Task not found');
-  }
-  if (task.project.toString() !== projectId) {
-    throw new ApiError(404, 'Task not found');
+    throw new ApiError(404, 'Task not found'));
   }
 
   task.comments.push({
@@ -203,7 +165,7 @@ export const addComment = asyncHandler(async (req, res, next) => {
   );
 });
 
-export const getTaskStats = asyncHandler(async (req, res, next) => {
+export const getTaskStats = asyncHandler(async (req, res) => {
   const { projectId } = req.params;
 
   const tasks = await Task.find({ project: projectId });
