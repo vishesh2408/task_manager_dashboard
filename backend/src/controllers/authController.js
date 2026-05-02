@@ -35,7 +35,7 @@ export const register = asyncHandler(async (req, res, next) => {
       201,
       {
         user: {
-          id: user._id,
+          id: user.email, // Use email as identifier instead of _id
           name: user.name,
           email: user.email,
           role: user.role,
@@ -74,7 +74,7 @@ export const login = asyncHandler(async (req, res, next) => {
       200,
       {
         user: {
-          id: user._id,
+          id: user.email, // Use email as identifier instead of _id
           name: user.name,
           email: user.email,
           role: user.role,
@@ -93,7 +93,7 @@ export const getMe = asyncHandler(async (req, res, next) => {
     new ApiResponse(
       200,
       {
-        id: user._id,
+        id: user.email, // Use email as identifier instead of _id
         name: user.name,
         email: user.email,
         role: user.role,
