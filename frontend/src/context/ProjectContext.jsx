@@ -102,7 +102,7 @@ export const ProjectProvider = ({ children }) => {
     }
   }, [token, projects]);
 
-  const addMember = useCallback(async (projectId, userId, role = 'member') => {
+  const addMember = useCallback(async (projectId, userEmail, role = 'member') => {
     setError(null);
     const response = await fetch(`${API_URL}/projects/${projectId}/members`, {
       method: 'POST',
@@ -110,7 +110,7 @@ export const ProjectProvider = ({ children }) => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ userId, role }),
+      body: JSON.stringify({ userEmail, role }),
     });
     const data = await response.json();
     if (response.ok) {

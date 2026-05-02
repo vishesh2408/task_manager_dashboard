@@ -111,10 +111,16 @@ export const deleteProject = asyncHandler(async (req, res, next) => {
 
 export const addMember = asyncHandler(async (req, res, next) => {
   const { projectId } = req.params;
-  const { userId, role } = req.body;
+  const { userEmail, role } = req.body;
 
-  if (!userId) {
-    throw new ApiError(400, 'User ID is required');
+  if (!userEmail) {
+    throw new ApiError(400, 'User email is required');
+  }
+
+  // Find user by email instead of ID
+  const userToAdd = await User.findOne({ email: userEmail });
+  if (!userToAdd) {
+    throw new ApiError(404, 'User not found');
   }
 
   let project = await Project.findById(projectId);
@@ -135,7 +141,7 @@ export const addMember = asyncHandler(async (req, res, next) => {
 
   // Check if member already exists
   const memberExists = project.members.some(
-    (m) => m.user.toString() === userId
+    (m) => m.user.toString() === userToAdd._id.toString()
   );
 
   if (memberExists) {
@@ -143,7 +149,7 @@ export const addMember = asyncHandler(async (req, res, next) => {
   }
 
   project.members.push({
-    user: userId,
+    user: userToAdd._id,
     role: role || 'member',
   });
 

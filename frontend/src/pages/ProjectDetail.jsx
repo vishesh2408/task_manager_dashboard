@@ -214,7 +214,7 @@ export default function ProjectDetail() {
   const { user } = useContext(AuthContext);
   const { projects, addMember, removeMember } = useContext(ProjectContext);
   const [showMemberForm, setShowMemberForm] = useState(false);
-  const [newMemberId, setNewMemberId] = useState('');
+  const [newMemberEmail, setNewMemberEmail] = useState('');
   const [newMemberRole, setNewMemberRole] = useState('member');
   const [loading, setLoading] = useState(false);
 
@@ -226,8 +226,8 @@ export default function ProjectDetail() {
     e.preventDefault();
     setLoading(true);
     try {
-      await addMember(projectId, newMemberId, newMemberRole);
-      setNewMemberId('');
+      await addMember(projectId, newMemberEmail, newMemberRole);
+      setNewMemberEmail('');
       setNewMemberRole('member');
       setShowMemberForm(false);
     } catch (err) {
@@ -319,10 +319,10 @@ export default function ProjectDetail() {
               <form onSubmit={handleAddMember} className="stack" style={{ marginBottom: 14 }}>
                 <input
                   type="text"
-                  value={newMemberId}
-                  onChange={(e) => setNewMemberId(e.target.value)}
+                  value={newMemberEmail}
+                  onChange={(e) => setNewMemberEmail(e.target.value)}
                   className="input"
-                  placeholder="User ID"
+                  placeholder="User Email"
                   required
                 />
                 <select
