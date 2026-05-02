@@ -26,9 +26,11 @@ app.get('/api/health', (req, res) => {
 });
 
 // Routes
+console.log('Registering routes...');
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/projects/:projectId/tasks', taskRoutes);
+console.log('Routes registered successfully');
 
 // 404 handler
 app.use((req, res) => {
@@ -41,7 +43,10 @@ app.use(errorHandler);
 // Database connection and server start
 const startServer = async () => {
   try {
+    console.log('Connecting to database...');
     await connectDB();
+    console.log('Database connected successfully');
+    console.log(`Starting server on port ${PORT}...`);
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
